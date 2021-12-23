@@ -6,16 +6,31 @@ const jwt = require("jsonwebtoken");
 
 const app = express();
 
-// models
-const User = require("./models/User");
-
 // Config JSON response
 app.use(express.json());
+
+var cors = require('cors');
+app.use(cors());
+
+// models
+const User = require("./models/User");
 
 // Open Route
 app.get("/", (req, res) => {
   res.status(200).json({ msg: "Bem vindo a API!" });
 });
+
+/* app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Header', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+
+  if(req.method === 'OPTIONS'){
+      res.header('Access-Control-Allow-Methods', 'PUT, POST, PATCH, DELETE, GET');
+      return res.status(200).send({})
+  }
+
+  next();
+}) */
 
 // Private Route
 app.get("/user/:id", checkToken, async (req, res) => {
@@ -102,25 +117,25 @@ app.post("/auth/login", async (req, res) => {
 
   // validations
   if (!email) {
-    return res.status(422).json({ msg: "O email é obrigatório!" });
+    return res.status(422).json({ error: "O email é obrigatório!" });
   }
 
   if (!password) {
-    return res.status(422).json({ msg: "A senha é obrigatória!" });
+    return res.status(422).json({ error: "A senha é obrigatória!" });
   }
 
   // check if user exists
   const user = await User.findOne({ email: email });
 
   if (!user) {
-    return res.status(404).json({ msg: "Usuário não encontrado!" });
+    return res.status(404).json({ error: "Usuário não encontrado!" });
   }
 
   // check if password match
   const checkPassword = await bcrypt.compare(password, user.password);
 
   if (!checkPassword) {
-    return res.status(422).json({ msg: "Senha inválida" });
+    return res.status(422).json({ error: "Senha inválida" });
   }
 
   try {
@@ -143,14 +158,14 @@ const dbUser = process.env.DB_USER;
 const dbPassword = process.env.DB_PASS;
 
 mongoose
-    .connect(
-        `mongodb+srv://${dbUser}:${dbPassword}@cluster0.iaecz.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`
-    )
-    .then(() => {
-        console.log("Conectou ao banco!");
-        app.listen(3000);
-    })
-    .catch((err) => console.log(err));
+  .connect(
+    `mongodb+srv://${dbUser}:${dbPassword}@cluster0.iaecz.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`
+  )
+  .then(() => {
+    console.log("Conectou ao banco!");
+    app.listen(3000);
+  })
+  .catch((err) => console.log(err));
 
 
-   
+
