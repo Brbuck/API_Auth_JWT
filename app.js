@@ -33,7 +33,8 @@ app.get("/", (req, res) => {
 }) */
 
 // Private Route
-app.get("/user/:id", checkToken, async (req, res) => {
+
+app.get(`/user/:id`, checkToken, async (req, res) => {
   const id = req.params.id;
 
   // check if user exists
@@ -44,6 +45,8 @@ app.get("/user/:id", checkToken, async (req, res) => {
   }
 
   res.status(200).json({ user });
+  
+  
 });
 
 function checkToken(req, res, next) {
@@ -60,11 +63,12 @@ function checkToken(req, res, next) {
     next();
   } catch (err) {
     res.status(400).json({ msg: "O Token é inválido!" });
+    
   }
 }
 
 app.post("/auth/register", async (req, res) => {
-  const { name, email, password, confirmpassword } = req.body;
+  const { name, email, password, confirmPassword } = req.body;
 
   // validations
   if (!name) {
@@ -79,7 +83,7 @@ app.post("/auth/register", async (req, res) => {
     return res.status(422).json({ msg: "A senha é obrigatória!" });
   }
 
-  if (password != confirmpassword) {
+  if (password != confirmPassword) {
     return res
       .status(422)
       .json({ msg: "A senha e a confirmação precisam ser iguais!" });
@@ -148,7 +152,7 @@ app.post("/auth/login", async (req, res) => {
       secret
     );
 
-    res.status(200).json({ msg: "Autenticação realizada com sucesso!", token });
+    res.status(200).json({ msg: "Autenticação realizada com sucesso!", token, user});
   } catch (error) {
     res.status(500).json({ msg: error });
   }
